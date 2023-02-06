@@ -32,7 +32,7 @@
 (define-map processed-withdrawal-leaves-map { withdrawal-leaf-hash: (buff 32), withdrawal-root-hash: (buff 32) } bool)
 
 ;; List of miners
-(define-data-var miner principal tx-sender)
+(define-data-var miner principal 'ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP)
 
 ;; Map of allowed contracts for asset transfers - maps L1 contract principal to L2 contract principal
 (define-map allowed-contracts principal principal)
