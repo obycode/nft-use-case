@@ -4,6 +4,7 @@ import {
     contractPrincipalCV,
     stringAsciiCV,
     broadcastTransaction,
+    getNonce,
 } from '@stacks/transactions';
 import { StacksTestnet, HIRO_MOCKNET_DEFAULT } from '@stacks/network';
 
@@ -12,13 +13,13 @@ async function main() {
     const network = new StacksTestnet({url: HIRO_MOCKNET_DEFAULT});
     const senderKey = process.env.AUTH_SUBNET_MINER_KEY;
     const userAddr = process.env.USER_ADDR;
-    const nonce = parseInt(process.argv[2]);
+    const nonce = await getNonce(process.env.AUTH_SUBNET_MINER_ADDR, network) + 1n;
 
     const txOptions = {
         contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        contractName: 'subnet-alpha',
+        contractName: 'subnet',
         functionName: 'register-new-nft-contract',
-        functionArgs: [contractPrincipalCV(userAddr, 'simple-nft-l1'), stringAsciiCV("subnet-deposit-nft-token")],
+        functionArgs: [contractPrincipalCV(userAddr, 'simple-nft-l1'), contractPrincipalCV(userAddr, 'simple-nft-l2')],
         senderKey,
         validateWithAbi: false,
         network,

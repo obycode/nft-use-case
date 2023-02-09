@@ -10,6 +10,7 @@ contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 
 [[project.requirements]]
 contract_id = 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard'
+
 [contracts.subnet]
 path = 'contracts/subnet.clar'
 clarity_version = 2
@@ -19,6 +20,7 @@ epoch = 2.1
 path = 'contracts/subnet-traits.clar'
 clarity_version = 1
 epoch = 2.0
+
 [repl.analysis]
 passes = ['check_checker']
 

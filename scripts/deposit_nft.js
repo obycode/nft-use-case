@@ -18,13 +18,12 @@ async function main() {
 
     const txOptions = {
         contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
-        contractName: 'subnet-alpha',
+        contractName: 'subnet',
         functionName: 'deposit-nft-asset',
         functionArgs: [
+            contractPrincipalCV(addr, 'simple-nft-l1'), // contract ID of nft contract on L1
             uintCV(5), // ID
             standardPrincipalCV(addr), // sender
-            contractPrincipalCV(addr, 'simple-nft-l1'), // contract ID of nft contract on L1
-            contractPrincipalCV(addr, 'simple-nft-l2'), // contract ID of nft contract on L2
         ],
         senderKey,
         validateWithAbi: false,
