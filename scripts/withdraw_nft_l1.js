@@ -31,7 +31,6 @@ async function main() {
     withdrawal_root: deserializeCV(json_merkle_entry.withdrawal_root),
     sibling_hashes: deserializeCV(json_merkle_entry.sibling_hashes),
   };
-  console.log(JSON.stringify(cv_merkle_entry));
 
   const txOptions = {
     senderKey,
