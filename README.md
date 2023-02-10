@@ -20,7 +20,9 @@
 
   (this needs to happen first, or else the stacks-node will stall, waiting for
   the observer)
-  * Note that if you run this multiple times, clear out the ./devnet/ directory before re-starting the subnet node (`rm -rf ./devnet/*`)
+
+  - Note that if you run this multiple times, clear out the ./devnet/ directory
+    before re-starting the subnet node (`rm -rf ./devnet/*`)
 
 - Clone this repository and launch a devnet:
 
@@ -77,8 +79,9 @@ a recent block.
 
 Then, publish the layer 2 contracts. Note, it might take a minute for the subnet
 node to start accepting transactions, so these commands could fail if you send
-them too early (but you can always re-try when the node is ready). These
-transactions are called by the principal `USER_ADDR`.
+them too early (but you can always re-try when the node is ready). It should
+work if the transaction is sent after the first `block-commit` is in an anchor
+block. These transactions are called by the principal `USER_ADDR`.
 
 ```
 node ./publish_tx.js simple-nft-l2 ../contracts-l2/simple-nft-l2.clar 2 0
@@ -153,16 +156,17 @@ Verify that the transaction is acknowledged in the next few blocks of the L1
 chain. After the transaction is confirmed in an anchored block on the L1 (this
 means it is included in an explicitly numbered block in the Clarinet console),
 you also may want to verify that the asset was successfully deposited on the
-subnet by grepping for the deposit transaction ID.
+subnet by grepping for the deposit operation.
 
 ```
-grep 62742f91aaa54428998cc191b53829f8e89c4d211a187e513ce8d40010002b8a ../subnet.log
+grep DepositNftOp ../subnet.log
 ```
 
 Look for a line like:
 
 ```
-@@@ Processing deposit FT ops: [DepositNftOp { txid: 62742f91aaa54428998cc191b53829f8e89c4d211a187e513ce8d40010002b8a, burn_header_hash: b0f6d6cd1e031d2a684992cd122ff91df333de1439110dd5b6b89b8138b04e53, l1_contract_id: QualifiedContractIdentifier { issuer: StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND), name: ContractName("simple-nft-l1") }, subnet_contract_id: QualifiedContractIdentifier { issuer: StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND), name: ContractName("simple-nft-l2") }, id: 5, sender: Standard(StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND)) }] ST000000000000000000002AMW42H```
+@@@ Processing deposit FT ops: [DepositNftOp { txid: 62742f91aaa54428998cc191b53829f8e89c4d211a187e513ce8d40010002b8a, burn_header_hash: b0f6d6cd1e031d2a684992cd122ff91df333de1439110dd5b6b89b8138b04e53, l1_contract_id: QualifiedContractIdentifier { issuer: StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND), name: ContractName("simple-nft-l1") }, subnet_contract_id: QualifiedContractIdentifier { issuer: StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND), name: ContractName("simple-nft-l2") }, id: 5, sender: Standard(StandardPrincipalData(ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND)) }] ST000000000000000000002AMW42H
+```
 
 ## Step 5: Transfer the NFT within the Subnet
 
@@ -175,7 +179,7 @@ NFT to `ALT_USER_ADDR`.
 node ./transfer_nft.js 1
 ```
 
-Grep for the transaction ID of the transfer transaction.
+Grep for the transfer transaction.
 
 ```
 grep transfer ../subnet.log
@@ -184,7 +188,13 @@ grep transfer ../subnet.log
 Look for something like the following line:
 
 ```
-INFO [1675972087.659820] [src/chainstate/stacks/db/transactions.rs:747] [relayer] Contract-call successfully processed, contract_name: ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, function_name: transfer, function_args: [u5, ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND, ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost: ExecutionCost { write_length: 1, write_count: 1, read_length: 1999, read_count: 4, runtime: 2807000 }
+INFO [1675972087.659820] [src/chainstate/stacks/db/transactions.rs:747]
+[relayer] Contract-call successfully processed, contract_name:
+ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, function_name: transfer,
+function_args: [u5, ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND,
+ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost:
+ExecutionCost { write_length: 1, write_count: 1, read_length: 1999, read_count:
+4, runtime: 2807000 }
 ```
 
 For a bonus step, you can try minting an NFT on the subnet. This would require
@@ -229,9 +239,22 @@ grep "nft-withdraw?" ../subnet.log
 ```
 
 Look for something like the following:
+
 ```
-INFO [1675960297.875772] [src/chainstate/stacks/db/transactions.rs:747] [relayer] Contract-call successfully processed, contract_name: ST000000000000000000002AMW42H.subnet, function_name: nft-withdraw?, function_args: [ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, u5, ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost: ExecutionCost { write_length: 2, write_count: 2, read_length: 4738, read_count: 8, runtime: 6439000 }
-INFO [1675960358.091130] [src/chainstate/stacks/db/transactions.rs:747] [chains-coordinator] Contract-call successfully processed, contract_name: ST000000000000000000002AMW42H.subnet, function_name: nft-withdraw?, function_args: [ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, u5, ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost: ExecutionCost { write_length: 2, write_count: 2, read_length: 4738, read_count: 8, runtime: 6439000 }
+INFO [1675960297.875772] [src/chainstate/stacks/db/transactions.rs:747]
+[relayer] Contract-call successfully processed, contract_name:
+ST000000000000000000002AMW42H.subnet, function_name: nft-withdraw?,
+function_args: [ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, u5,
+ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost:
+ExecutionCost { write_length: 2, write_count: 2, read_length: 4738, read_count:
+8, runtime: 6439000 } INFO [1675960358.091130]
+[src/chainstate/stacks/db/transactions.rs:747] [chains-coordinator]
+Contract-call successfully processed, contract_name:
+ST000000000000000000002AMW42H.subnet, function_name: nft-withdraw?,
+function_args: [ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2, u5,
+ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB], return_value: (ok true), cost:
+ExecutionCost { write_length: 2, write_count: 2, read_length: 4738, read_count:
+8, runtime: 6439000 }
 ```
 
 In order to successfully complete the withdrawal on the L1, it is necessary to
@@ -243,8 +266,12 @@ grep "Parsed L2 withdrawal event" ../subnet.log
 ```
 
 Look for something like the following:
+
 ```
-INFO [1675960297.877492] [src/clarity_vm/withdrawal.rs:157] [relayer] Parsed L2 withdrawal event, type: nft, block_height: 102, sender: ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB, withdrawal_id: 0, asset_id: ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2
+INFO [1675960297.877492] [src/clarity_vm/withdrawal.rs:157] [relayer] Parsed L2
+withdrawal event, type: nft, block_height: 102, sender:
+ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB, withdrawal_id: 0, asset_id:
+ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2
 ```
 
 Get the withdrawal height by looking at the `block_height` in the returned line.
@@ -263,7 +290,7 @@ the requested withdrawal was the only one in the subnet block it was a part of
 withdraw multiple assets in a short span of time).
 
 ```
-node ./withdraw_nft_l1.js {WITHDRAWAL_BLOCK_HEIGHT} 2
+node ./withdraw_nft_l1.js {WITHDRAWAL_BLOCK_HEIGHT} 0
 ```
 
 Check for the success of this transaction in the Clarinet console:
@@ -280,3 +307,15 @@ corresponding to `withdraw-nft-asset`.
 That is the conclusion of this demo! If you have any issues with this demo,
 reach out on the Stacks Discord or leave an issue in the stacks-subnets
 repository.
+
+Verify that the correct address now owns the NFT by calling:
+
+```
+node ./verify.js
+```
+
+The result is printed to the terminal, and should show:
+
+```
+(some ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB)
+```
