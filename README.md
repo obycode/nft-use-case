@@ -41,7 +41,7 @@ the subnet miner, two user addresses and private keys, and the RPC URL which we
 can query for subnet state. Open a separate terminal window, navigate to the
 directory `nft-use-case/scripts`, and enter the following.
 
-```
+```sh
 export AUTH_SUBNET_MINER_ADDR=ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP
 export AUTH_SUBNET_MINER_KEY=6a1a754ba863d7bab14adbbc3f8ebb090af9e871ace621d3e5ab634e1422885e01
 
@@ -74,7 +74,7 @@ transaction. First, publish the layer 1 contracts. You can enter this command
 entered the environment variables. Make sure you are in the `scripts` directory.
 These transactions are called by the principal `USER_ADDR`.
 
-```
+```sh
 node ./publish_tx.js simple-nft-l1 ../contracts/simple-nft.clar 1 0
 ```
 
@@ -90,7 +90,7 @@ them too early (but you can always re-try when the node is ready). It should
 work if the transaction is sent after the first `block-commit` is in an anchor
 block. These transactions are called by the principal `USER_ADDR`.
 
-```
+```sh
 node ./publish_tx.js simple-nft-l2 ../contracts-l2/simple-nft-l2.clar 2 0
 ```
 
@@ -99,7 +99,7 @@ the transaction IDs of _each_ subnet transaction. The transaction ID is logged
 to the console after the call to `publish_tx` - make sure this is the ID you
 grep for.
 
-```
+```sh
 grep 219bae673fb5037e657dfae5981288c22cf156497b0e6ecbc683058fe5efb49f ../subnet.log
 ```
 
@@ -113,7 +113,7 @@ To ensure the contracts were successfully parsed and published, we will grep for
 the name of the contract and ensure there are no error lines returned (not
 atypical for no lines to be returned at this step).
 
-```
+```sh
 grep "simple-nft-l2" ../subnet.log
 ```
 
@@ -123,7 +123,7 @@ Create the transaction to register the new NFT asset we just published. This
 must be called by a miner of the subnet contract. Specifically, this transaction
 will be sent by `AUTH_SUBNET_MINER_ADDR`.
 
-```
+```sh
 node ./register_nft.js
 ```
 
@@ -139,7 +139,7 @@ ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND.simple-nft-l2) (ok true)
 Let's create a transaction to mint an NFT on the L1 chain. Once this transaction
 is processed, the principal `USER_ADDR` will own an NFT.
 
-```
+```sh
 node ./mint_nft.js 1
 ```
 
@@ -155,7 +155,7 @@ u5) (ok true)
 Now, we can call the deposit NFT function in the subnet interface contract. This
 function is called by the principal `USER_ADDR`.
 
-```
+```sh
 node ./deposit_nft.js 2
 ```
 
@@ -165,7 +165,7 @@ means it is included in an explicitly numbered block in the Clarinet console),
 you also may want to verify that the asset was successfully deposited on the
 subnet by grepping for the deposit operation.
 
-```
+```sh
 grep DepositNftOp ../subnet.log
 ```
 
@@ -182,13 +182,13 @@ transaction, `USER_ADDR`. This principal can now transfer the NFT within the
 subnet. The principal `USER_ADDR` will now make a transaction to transfer the
 NFT to `ALT_USER_ADDR`.
 
-```
+```sh
 node ./transfer_nft.js 1
 ```
 
 Grep for the transfer transaction.
 
-```
+```sh
 grep transfer ../subnet.log
 ```
 
@@ -235,13 +235,13 @@ upcoming subnet release, the asset owner must call this function.
 Perform the withdrawal on the layer 2 by calling `withdraw-nft-asset` in the
 `simple-nft-l2` contract. This will be called by the principal `ALT_USER_ADDR`.
 
-```
+```sh
 node ./withdraw_nft_l2.js 0
 ```
 
 Grep the subnet node to ensure success:
 
-```
+```sh
 grep "nft-withdraw?" ../subnet.log
 ```
 
@@ -268,7 +268,7 @@ In order to successfully complete the withdrawal on the L1, it is necessary to
 know the height at which the withdrawal occurred. You can find the height of the
 withdrawal using grep:
 
-```
+```sh
 grep "Parsed L2 withdrawal event" ../subnet.log
 ```
 
@@ -296,7 +296,7 @@ the requested withdrawal was the only one in the subnet block it was a part of
 (thus, you may run into issues using this script if you are attempting to
 withdraw multiple assets in a short span of time).
 
-```
+```sh
 node ./withdraw_nft_l1.js {WITHDRAWAL_BLOCK_HEIGHT} 0
 ```
 
@@ -317,7 +317,7 @@ repository.
 
 Verify that the correct address now owns the NFT by calling:
 
-```
+```sh
 node ./verify.js
 ```
 
