@@ -53,6 +53,13 @@ export ALT_USER_KEY=3eccc5dac8056590432db6a35d52b9896876a3d5cbdea53b72400bc9c209
 export SUBNET_URL="http://localhost:30443"
 ```
 
+While in the `scripts` directory, we will also need to install some NPM dependencies
+which are used by our scripts:
+
+```sh
+npm install
+```
+
 ## Step 1: Publish the NFT contract to the Stacks L1 and the Subnet
 
 Once the Stacks node and the subnet node boots up (use the indicators in the top
